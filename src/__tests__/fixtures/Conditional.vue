@@ -16,10 +16,10 @@
 
 <script lang="ts">
 
-	import { action, observable } from "mobx";
-	import Vue from "vue";
-	import Component from "vue-class-component";
-	import { Observer } from "../../observer";
+	import { action, observable } from 'mobx';
+	import Vue from 'vue';
+	import Component from 'vue-class-component';
+	import { Observer } from '../../observer';
 
 	class Model {
 		@observable

@@ -12,6 +12,7 @@ import Base from './fixtures/Base.vue';
 import ClassBase from './fixtures/ClassBase.vue';
 import Conditional from './fixtures/Conditional.vue';
 import DecoratedClassBase from './fixtures/DecoratedClassBase.vue';
+import MappedProps from './fixtures/MappedProps.vue';
 import ModelClassBase from './fixtures/ModelClassBase.vue';
 
 class Model {
@@ -257,4 +258,18 @@ test('mobx state should not be collect by vue', () => {
 
 	expect(vm.name).toBe('kuitos');
 	expect(vm.$data.hasOwnProperty('name')).toBeFalsy();
+});
+
+test('binds matching props to viewmodel automatically', () => {
+	const destroyed = jest.fn();
+	const wrapper = shallowMount(MappedProps, {
+		mixins: [{ destroyed }],
+		propsData: {
+			age: 5,
+			ageIncrement: 10,
+		},
+	});
+	expect(wrapper.text()).toEqual('5 15');
+	wrapper.setProps({ age: 100, ageIncrement: 100 });
+	expect(wrapper.text()).toEqual('100 200');
 });

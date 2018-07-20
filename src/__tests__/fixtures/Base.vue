@@ -7,10 +7,10 @@
 
 <script lang="ts">
 
-	import { observable } from "mobx";
+	import { observable } from 'mobx';
 
 	export default {
-		name: "Base",
+		name: 'Base',
 		data() {
 			const model = observable.object({
 				age: 10,

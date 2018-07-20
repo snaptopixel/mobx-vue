@@ -7,9 +7,9 @@
 
 <script lang="ts">
 
-	import { observable } from "mobx";
-	import Vue from "vue";
-	import Component from "vue-class-component";
+	import { observable } from 'mobx';
+	import Vue from 'vue';
+	import Component from 'vue-class-component';
 
 	const model = observable.object({
 		age: 10,
