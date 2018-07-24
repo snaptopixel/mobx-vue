@@ -3,11 +3,11 @@
  * @homepage https://github.com/kuitos/
  * @since 2018-05-24 13:36
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, Wrapper } from '@vue/test-utils';
 import { action, computed, observable } from 'mobx';
 import Vue, { CreateElement } from 'vue';
 import Component from 'vue-class-component';
-import { Observer, observer } from '../observer';
+import { MobxAugmentedVue, Observer, observer } from '../observer';
 import Base from './fixtures/Base.vue';
 import ClassBase from './fixtures/ClassBase.vue';
 import Conditional from './fixtures/Conditional.vue';
@@ -48,8 +48,8 @@ test('observer with a object literal component', () => {
 		name: 'HelloWorld',
 		render(this: any, h: CreateElement) {
 			return h('button', {
-				on: { click: this.model.setAge }, domProps: { textContent: this.model.age },
-			});
+				on: { click: this.model.setAge },
+			}, [this.model.age]);
 		},
 	});
 
@@ -109,8 +109,12 @@ test('use observer function with class component and observable model constructe
 });
 //
 describe('use observer decorator with class component and observable model constructed by class', () => {
+	let wrapper: Wrapper<any>;
 
-	const wrapper = shallowMount(DecoratedClassBase);
+	beforeEach(() => {
+		wrapper = shallowMount(DecoratedClassBase);
+	});
+
 	test('component should be reactive', () => {
 
 		expect(wrapper.name()).toBe((DecoratedClassBase as any).name);
@@ -129,12 +133,8 @@ describe('use observer decorator with class component and observable model const
 	test('mobx reaction should be disposed while component destroyed', () => {
 
 		const spy = jest.fn();
-		const $destroy = DecoratedClassBase.prototype.$destroy;
-		DecoratedClassBase.prototype.$destroy = function (this: any, ...args: any[]) {
-			$destroy.apply(this, args);
-			spy();
-		};
-
+		const vm = wrapper.vm as MobxAugmentedVue;
+		vm.__mobxRenderDisposer__ = spy as any;
 		wrapper.destroy();
 		expect(spy.mock.calls.length).toBe(1);
 	});
@@ -167,6 +167,7 @@ test('compatible with traditional component definition', () => {
 });
 
 test('component lifecycle should worked well', () => {
+	const spy = jest.fn();
 
 	const Component = observer({
 		name: 'HelloWorld',
@@ -174,26 +175,31 @@ test('component lifecycle should worked well', () => {
 			return { model: new Model() };
 		},
 		beforeCreate(this: any) {
-			expect(this.model).toBeUndefined();
+			spy('beforeCreate', this.model);
 		},
 		created(this: any) {
-			expect(this.model.age).toBe(10);
+			spy('created', this.model.age);
 		},
 		beforeUpdate(this: any) {
-			expect(this.model.age).toBe(11);
+			spy('beforeUpdate', this.model.age);
 		},
 		updated(this: any) {
-			expect(this.model.age).toBe(11);
+			spy('updated', this.model.age);
 		},
 		render(this: any, h: CreateElement) {
 			return h('button', {
-				on: { click: this.model.setAge }, domProps: { textContent: this.model.age },
-			});
+				on: { click: this.model.setAge },
+			}, [this.model.age]);
 		},
 	});
 
 	const wrapper = shallowMount(Component);
+
+	console.log(spy.mock.calls);
+
 	wrapper.trigger('click');
+
+	console.log(spy.mock.calls);
 
 });
 
@@ -269,7 +275,12 @@ test('binds matching props to viewmodel automatically', () => {
 			ageIncrement: 10,
 		},
 	});
+	// Works with initial values
 	expect(wrapper.text()).toEqual('5 15');
+	// Works when props are changed
 	wrapper.setProps({ age: 100, ageIncrement: 100 });
 	expect(wrapper.text()).toEqual('100 200');
+	// Works when internal model changes occur
+	wrapper.find('button').trigger('click');
+	expect(wrapper.text()).toEqual('99 199');
 });

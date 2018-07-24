@@ -27,7 +27,7 @@
 
 		@action.bound
 		setAge() {
-			this.age++;
+			this.age = 99;
 		}
 	}
 
@@ -36,7 +36,7 @@
 		props: {
 			ageIncrement: Number,
 			age: Number,
-		}
+		},
 	})
 	export default class MappedProps extends Vue {
 		model = new Model();
