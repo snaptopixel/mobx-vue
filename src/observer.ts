@@ -3,7 +3,7 @@
  * @homepage https://github.com/kuitos/
  * @since 2018-05-22 16:39
  */
-import { reaction, runInAction, isObservable, observe, autorun } from 'mobx';
+import { observe, runInAction } from 'mobx';
 import Vue, { ComponentOptions } from 'vue';
 import collectDataForVue from './collectData';
 
@@ -65,7 +65,7 @@ function observer<VC extends VueClass<Vue>>(Component: VC | ComponentOptions<Vue
 	const Super = (typeof Component === 'function' && Component.prototype instanceof Vue) ? Component : Vue;
 	const ExtendedComponent = Super.extend(options);
 
-	options.mixins.push({})
+	options.mixins.push({});
 
 	Object.defineProperty(ExtendedComponent, 'name', {
 		writable: false,
@@ -77,7 +77,4 @@ function observer<VC extends VueClass<Vue>>(Component: VC | ComponentOptions<Vue
 	return ExtendedComponent;
 }
 
-export {
-	observer,
-	observer as Observer,
-};
+export { observer, observer as Observer, };
