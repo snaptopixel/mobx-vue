@@ -77,4 +77,4 @@ function observer<VC extends VueClass<Vue>>(Component: VC | ComponentOptions<Vue
 	return ExtendedComponent;
 }
 
-export { observer, observer as Observer, };
+export { observer, observer as Observer };
